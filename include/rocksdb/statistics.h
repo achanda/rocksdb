@@ -662,6 +662,12 @@ enum Histograms : uint32_t {
   // system's prefetch) from the end of SST table during block based table open
   TABLE_OPEN_PREFETCH_TAIL_READ_BYTES,
 
+
+  DB_GET_CORE,
+  DB_GET_MEMORY,
+  DB_PUT_CORE,
+  DB_PUT_MEMORY,
+
   HISTOGRAM_ENUM_MAX
 };
 

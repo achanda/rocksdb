@@ -336,6 +336,10 @@ const std::vector<std::pair<Histograms, std::string>> HistogramsNameMap = {
     {ASYNC_PREFETCH_ABORT_MICROS, "rocksdb.async.prefetch.abort.micros"},
     {TABLE_OPEN_PREFETCH_TAIL_READ_BYTES,
      "rocksdb.table.open.prefetch.tail.read.bytes"},
+    {DB_GET_CORE, "rocksdb.db.get.core.joules"},
+    {DB_GET_MEMORY, "rocksdb.db.get.memory.joules"},
+    {DB_PUT_CORE, "rocksdb.db.put.core.joules"},
+    {DB_PUT_MEMORY, "rocksdb.db.put.memory.joules"},
 };
 
 std::shared_ptr<Statistics> CreateDBStatistics() {
