@@ -7,6 +7,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 #include "db/db_impl/db_impl.h"
+#include "db/db_impl/PowerMeter.h"
 
 #include <cstdint>
 #ifdef OS_SOLARIS
@@ -2293,6 +2294,9 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
   StopWatch sw(immutable_db_options_.clock, stats_, DB_GET);
   PERF_TIMER_GUARD(get_snapshot_time);
 
+  PowerMeter pm_load;
+  assert(pm_load.startMeasurement());  
+
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
       get_impl_options.column_family);
   auto cfd = cfh->cfd();
@@ -2562,6 +2566,11 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
 
     ReturnAndCleanupSuperVersion(cfd, sv);
 
+    assert(pm_load.stopMeasurement());
+    EnergyUsage eu = pm_load.getEnergyUsage();
+
+    RecordInHistogram(stats_, DB_GET_CORE, eu.core);
+    RecordInHistogram(stats_, DB_GET_MEMORY, eu.ram);
     RecordInHistogram(stats_, BYTES_PER_READ, size);
   }
   return s;
