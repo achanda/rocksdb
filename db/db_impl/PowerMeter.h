@@ -42,7 +42,7 @@ private:
   static constexpr int event_pkg = 0x2;   // event code for pkg
   static constexpr int event_ram = 0x3;   // event code for ram
   static constexpr const char *measurement_unit = "Joules";
-  static constexpr int type = 0x17; // type is always 23
+  static constexpr int type = 0x19; // type is always 23
 
   bool setupCounter();
   bool readCounter(long int &pkg_counter, long int &ram_counter,
