@@ -578,6 +578,9 @@ endif()
 
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(/usr/local/include/cpu-energy-meter)
+link_directories(/usr/local/lib)
+target_link_libraries(rocksdb energy)
 
 if(USE_COROUTINES)
   if(USE_FOLLY OR USE_FOLLY_LITE)

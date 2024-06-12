@@ -2294,8 +2294,10 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
   StopWatch sw(immutable_db_options_.clock, stats_, DB_GET);
   PERF_TIMER_GUARD(get_snapshot_time);
 
-  PowerMeter pm_load;
-  assert(pm_load.startMeasurement());  
+  double energy_pkg, energy_pp0, energy_pp1, energy_dram;
+  assert(initialize_energy_monitor());
+
+  assert(start_energy_measurement());
 
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
       get_impl_options.column_family);
@@ -2566,12 +2568,13 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
 
     ReturnAndCleanupSuperVersion(cfd, sv);
 
-    assert(pm_load.stopMeasurement());
-    EnergyUsage eu = pm_load.getEnergyUsage();
+    assert(end_energy_measurement(&energy_pkg, &energy_pp0, &energy_pp1, &energy_dram));
 
-    RecordInHistogram(stats_, DB_GET_CORE, eu.core);
-    RecordInHistogram(stats_, DB_GET_MEMORY, eu.ram);
+    RecordInHistogram(stats_, DB_GET_CORE, energy_pkg);
+    RecordInHistogram(stats_, DB_GET_MEMORY, energy_dram);
     RecordInHistogram(stats_, BYTES_PER_READ, size);
+
+    terminate_energy_monitor();
   }
   return s;
 }

@@ -10,6 +10,9 @@ BASH_EXISTS := $(shell which bash)
 SHELL := $(shell which bash)
 include common.mk
 
+EXTRA_CXXFLAGS = -I/usr/local/include/cpu-energy-meter
+EXTRA_LDFLAGS = -L/usr/local/lib -lenergy -lcap
+
 CLEAN_FILES = # deliberately empty, so we can append below.
 CFLAGS += ${EXTRA_CFLAGS}
 CXXFLAGS += ${EXTRA_CXXFLAGS}
