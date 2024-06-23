@@ -1,17 +1,15 @@
 #ifndef POWER_METER_H
 #define POWER_METER_H
 
+int read_energy_uj();
 
-// Initialize the RAPL library
-int initialize_energy_monitor();
+class PowerMeter {
+public:
+    void startMeasurement();
+    int endMeasurement();
 
-// Terminate the RAPL library
-void terminate_energy_monitor();
-
-// Start measuring energy
-int start_energy_measurement();
-
-// End measuring energy and get the consumed values
-int end_energy_measurement(double *energy_pkg, double *energy_pp0, double *energy_pp1, double *energy_dram);
+private:
+    int startEnergy;
+};
 
 #endif // POWER_METER_H

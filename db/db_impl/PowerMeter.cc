@@ -1,47 +1,45 @@
 #include "PowerMeter.h"
 
-extern "C" {
-#include <rapl.h>
-}
+#include <iostream>
 
-#include <stdio.h>
+int read_energy_uj() {
+    // File path
+    const char *file_path = "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/energy_uj";
+    FILE *file;
+    int energy_value;
 
-static double initial_energy_pkg, initial_energy_pp0, initial_energy_pp1, initial_energy_dram;
-
-int initialize_energy_monitor() {
-    return init_rapl();
-}
-
-void terminate_energy_monitor() {
-    terminate_rapl();
-}
-
-int start_energy_measurement() {
-    if (get_total_energy_consumed(0, RAPL_PKG, &initial_energy_pkg) != 0 ||
-        get_total_energy_consumed(0, RAPL_PP0, &initial_energy_pp0) != 0 ||
-        get_total_energy_consumed(0, RAPL_PP1, &initial_energy_pp1) != 0 ||
-        get_total_energy_consumed(0, RAPL_DRAM, &initial_energy_dram) != 0) {
-        fprintf(stderr, "Failed to read initial energy from all domains\n");
-        return 1;
-    }
-    return 0;
-}
-
-int end_energy_measurement(double *energy_pkg, double *energy_pp0, double *energy_pp1, double *energy_dram) {
-    double current_energy_pkg, current_energy_pp0, current_energy_pp1, current_energy_dram;
-
-    if (get_total_energy_consumed(0, RAPL_PKG, &current_energy_pkg) != 0 ||
-        get_total_energy_consumed(0, RAPL_PP0, &current_energy_pp0) != 0 ||
-        get_total_energy_consumed(0, RAPL_PP1, &current_energy_pp1) != 0 ||
-        get_total_energy_consumed(0, RAPL_DRAM, &current_energy_dram) != 0) {
-        fprintf(stderr, "Failed to read final energy from all domains\n");
-        return 1;
+    // Open the file for reading
+    file = fopen(file_path, "r");
+    if (file == NULL) {
+        perror("Failed to open file");
+        return -1; // Error code
     }
 
-    *energy_pkg = current_energy_pkg - initial_energy_pkg;
-    *energy_pp0 = current_energy_pp0 - initial_energy_pp0;
-    *energy_pp1 = current_energy_pp1 - initial_energy_pp1;
-    *energy_dram = current_energy_dram - initial_energy_dram;
+    // Read the integer value from the file
+    if (fscanf(file, "%d", &energy_value) != 1) {
+        perror("Failed to read integer from file");
+        fclose(file);
+        return -1; // Error code
+    }
 
-    return 0;
+    // Close the file
+    fclose(file);
+
+    // Return the integer value
+    return energy_value;
+}
+
+
+void PowerMeter::startMeasurement() {
+    startEnergy = read_energy_uj();
+}
+
+int PowerMeter::endMeasurement() {
+    int endEnergy = read_energy_uj();
+    if (endEnergy >= startEnergy) {
+        return endEnergy - startEnergy;
+    } else {
+        std::cerr << "Error: End measurement is less than start measurement." << std::endl;
+        return -1;
+    }
 }
