@@ -9,6 +9,7 @@
 #include <cinttypes>
 
 #include "db/db_impl/db_impl.h"
+#include "db/db_impl/PowerMeter.h"
 #include "db/error_handler.h"
 #include "db/event_helpers.h"
 #include "logging/logging.h"
@@ -345,6 +346,9 @@ Status DBImpl::WriteImpl(const WriteOptions& write_options,
   WriteThread::Writer w(write_options, my_batch, callback, user_write_cb,
                         log_ref, disable_memtable, batch_cnt,
                         pre_release_callback, post_memtable_callback);
+
+  PowerMeter pm_load;
+  pm_load.startMeasurement();
   StopWatch write_sw(immutable_db_options_.clock, stats_, DB_WRITE);
 
   write_thread_.JoinBatchGroup(&w);
@@ -504,6 +508,9 @@ Status DBImpl::WriteImpl(const WriteOptions& write_options,
     // that nobody else can be writing to these particular stats.
     // We're optimistic, updating the stats before we successfully
     // commit.  That lets us release our leader status early.
+
+    int ret = pm_load.endMeasurement();
+    RecordInHistogram(stats_, DB_PUT_CORE, ret);
     auto stats = default_cf_internal_stats_;
     stats->AddDBStats(InternalStats::kIntStatsNumKeysWritten, total_count,
                       concurrent_update);
