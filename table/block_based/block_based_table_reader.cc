@@ -24,6 +24,7 @@
 #include "cache/cache_key.h"
 #include "db/compaction/compaction_picker.h"
 #include "db/dbformat.h"
+#include "db/db_impl/PowerMeter.h"
 #include "db/pinned_iterators_manager.h"
 #include "file/file_prefetch_buffer.h"
 #include "file/file_util.h"
@@ -2074,6 +2075,8 @@ bool BlockBasedTable::FullFilterKeyMayMatch(
     const SliceTransform* prefix_extractor, GetContext* get_context,
     BlockCacheLookupContext* lookup_context,
     const ReadOptions& read_options) const {
+  PowerMeter pm;
+  pm.startMeasurement();
   if (filter == nullptr) {
     return true;
   }
@@ -2109,6 +2112,8 @@ bool BlockBasedTable::FullFilterKeyMayMatch(
       PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_useful, 1, rep_->level);
     }
   }
+  int ret = pm.endMeasurement();
+  RecordInHistogram(rep_->ioptions.stats, DB_GET_FILTER_CORE, ret);
   return may_match;
 }
 

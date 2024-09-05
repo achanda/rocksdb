@@ -664,6 +664,9 @@ enum Histograms : uint32_t {
 
 
   DB_GET_CORE,
+  DB_GET_FILTER_CORE,
+  DB_GET_INDEX_CORE,
+  DB_GET_DISK_CORE,
   DB_GET_MEMORY,
   DB_PUT_CORE,
   DB_PUT_MEMORY,
