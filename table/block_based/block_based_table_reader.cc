@@ -2288,6 +2288,8 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       iiter_unique_ptr.reset(iiter);
     }
 
+    PowerMeter pm;
+    pm.startMeasurement();
     size_t ts_sz =
         rep_->internal_comparator.user_comparator()->timestamp_size();
     bool matched = false;  // if such user key matched a key in SST
@@ -2313,11 +2315,16 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       DataBlockIter biter;
       uint64_t referenced_data_size = 0;
       Status tmp_status;
+
+      PowerMeter pm_read;
+      pm_read.startMeasurement();
       NewDataBlockIterator<DataBlockIter>(
           read_options, v.handle, &biter, BlockType::kData, get_context,
           &lookup_data_block_context, /*prefetch_buffer=*/nullptr,
           /*for_compaction=*/false, /*async_read=*/false, tmp_status,
           /*use_block_cache_for_lookup=*/true);
+      int ret_read = pm_read.endMeasurement();
+      RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_CORE, ret_read);
 
       if (no_io && biter.status().IsIncomplete()) {
         // couldn't get block from block_cache
@@ -2396,6 +2403,9 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
         break;
       }
     }
+
+    int ret = pm.endMeasurement();
+    RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE, ret);
     if (matched && filter != nullptr) {
       if (rep_->whole_key_filtering) {
         RecordTick(rep_->ioptions.stats, BLOOM_FILTER_FULL_TRUE_POSITIVE);
