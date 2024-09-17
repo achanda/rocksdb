@@ -2113,7 +2113,7 @@ bool BlockBasedTable::FullFilterKeyMayMatch(
     }
   }
   int ret = pm.endMeasurement();
-  RecordInHistogram(rep_->ioptions.stats, DB_GET_FILTER_CORE, ret);
+  RecordInHistogram(rep_->ioptions.stats, DB_GET_FILTER_CORE_JOULES, ret);
   return may_match;
 }
 
@@ -2324,7 +2324,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
           /*for_compaction=*/false, /*async_read=*/false, tmp_status,
           /*use_block_cache_for_lookup=*/true);
       int ret_read = pm_read.endMeasurement();
-      RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_CORE, ret_read);
+      RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_CORE_JOULES, ret_read);
 
       if (no_io && biter.status().IsIncomplete()) {
         // couldn't get block from block_cache
@@ -2405,7 +2405,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     }
 
     int ret = pm.endMeasurement();
-    RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE, ret);
+    RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, ret);
     if (matched && filter != nullptr) {
       if (rep_->whole_key_filtering) {
         RecordTick(rep_->ioptions.stats, BLOOM_FILTER_FULL_TRUE_POSITIVE);

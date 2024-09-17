@@ -336,13 +336,13 @@ const std::vector<std::pair<Histograms, std::string>> HistogramsNameMap = {
     {ASYNC_PREFETCH_ABORT_MICROS, "rocksdb.async.prefetch.abort.micros"},
     {TABLE_OPEN_PREFETCH_TAIL_READ_BYTES,
      "rocksdb.table.open.prefetch.tail.read.bytes"},
-    {DB_GET_CORE, "rocksdb.db.get.core.joules"},
-    {DB_GET_FILTER_CORE, "rocksdb.db.get.filter.core.joules"},
-    {DB_GET_INDEX_CORE, "rocksdb.db.get.index.core.joules"},
-    {DB_GET_DISK_CORE, "rocksdb.db.get.disk.core.joules"},
-    {DB_GET_MEMORY, "rocksdb.db.get.memory.joules"},
-    {DB_PUT_CORE, "rocksdb.db.put.core.joules"},
-    {DB_PUT_MEMORY, "rocksdb.db.put.memory.joules"},
+    {DB_GET_CORE_JOULES, "rocksdb.db.get.core.joules"},
+    {DB_GET_FILTER_CORE_JOULES, "rocksdb.db.get.filter.core.joules"},
+    {DB_GET_INDEX_CORE_JOULES, "rocksdb.db.get.index.core.joules"},
+    {DB_GET_DISK_CORE_JOULES, "rocksdb.db.get.disk.core.joules"},
+    {DB_GET_MEMORY_JOULES, "rocksdb.db.get.memory.joules"},
+    {DB_PUT_CORE_JOULES, "rocksdb.db.put.core.joules"},
+    {DB_PUT_MEMORY_JOULES, "rocksdb.db.put.memory.joules"},
 };
 
 std::shared_ptr<Statistics> CreateDBStatistics() {

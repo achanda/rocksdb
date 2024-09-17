@@ -510,7 +510,7 @@ Status DBImpl::WriteImpl(const WriteOptions& write_options,
     // commit.  That lets us release our leader status early.
 
     int ret = pm_load.endMeasurement();
-    RecordInHistogram(stats_, DB_PUT_CORE, ret);
+    RecordInHistogram(stats_, DB_PUT_CORE_JOULES, ret);
     auto stats = default_cf_internal_stats_;
     stats->AddDBStats(InternalStats::kIntStatsNumKeysWritten, total_count,
                       concurrent_update);

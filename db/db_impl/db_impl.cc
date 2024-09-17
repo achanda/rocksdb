@@ -2568,7 +2568,7 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
 
     int ret = pm_load.endMeasurement();
 
-    RecordInHistogram(stats_, DB_GET_CORE, ret);
+    RecordInHistogram(stats_, DB_GET_CORE_JOULES, ret);
     RecordInHistogram(stats_, BYTES_PER_READ, size);
   }
   return s;
