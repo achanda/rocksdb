@@ -2,11 +2,11 @@
 
 #include <iostream>
 
-int read_energy_uj() {
+unsigned long long read_energy_uj() {
     // File path
     const char *file_path = "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/energy_uj";
     FILE *file;
-    int energy_value;
+    unsigned long long energy_value;
 
     // Open the file for reading
     file = fopen(file_path, "r");
@@ -16,7 +16,7 @@ int read_energy_uj() {
     }
 
     // Read the integer value from the file
-    if (fscanf(file, "%d", &energy_value) != 1) {
+    if (fscanf(file, "%llu", &energy_value) != 1) {
         perror("Failed to read integer from file");
         fclose(file);
         return -1; // Error code
@@ -34,8 +34,8 @@ void PowerMeter::startMeasurement() {
     startEnergy = read_energy_uj();
 }
 
-int PowerMeter::endMeasurement() {
-    int endEnergy = read_energy_uj();
+unsigned long long PowerMeter::endMeasurement() {
+    unsigned long long endEnergy = read_energy_uj();
     if (endEnergy >= startEnergy) {
         return endEnergy - startEnergy;
     } else {

@@ -1,15 +1,15 @@
 #ifndef POWER_METER_H
 #define POWER_METER_H
 
-int read_energy_uj();
+unsigned long long read_energy_uj();
 
 class PowerMeter {
 public:
     void startMeasurement();
-    int endMeasurement();
+    unsigned long long endMeasurement();
 
 private:
-    int startEnergy;
+    unsigned long long startEnergy;
 };
 
 #endif // POWER_METER_H
