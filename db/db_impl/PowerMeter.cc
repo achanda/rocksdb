@@ -39,7 +39,9 @@ unsigned long long PowerMeter::endMeasurement() {
     if (endEnergy >= startEnergy) {
         return endEnergy - startEnergy;
     } else {
-        std::cerr << "Error: End measurement is less than start measurement." << std::endl;
-        return -1;
+        const unsigned long long MAX_ENERGY_UJ = 0xFFFFFFFFFFFFFFFF;
+        unsigned long long energyDifference = (MAX_ENERGY_UJ - startEnergy) + endEnergy;
+        std::cerr << "Warning: Counter overflow detected. Calculated energy difference with overflow handling." << std::endl;
+        return energyDifference;
     }
 }
