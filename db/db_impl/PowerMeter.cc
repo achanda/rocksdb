@@ -23,7 +23,6 @@ unsigned long long read_energy_uj() {
     }
 
     file.close();
-    std::cout << "[DEBUG] Successfully read energy value: " << energy_value << " µJ" << std::endl;
     return energy_value;
 }
 
