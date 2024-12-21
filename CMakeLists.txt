@@ -88,7 +88,7 @@ if(CCACHE_FOUND)
 endif(CCACHE_FOUND)
 
 option(WITH_JEMALLOC "build with JeMalloc" OFF)
-option(WITH_LIBURING "build with liburing" ON)
+option(WITH_LIBURING "build with liburing" OFF)
 option(WITH_SNAPPY "build with SNAPPY" OFF)
 option(WITH_LZ4 "build with lz4" OFF)
 option(WITH_ZLIB "build with zlib" OFF)
@@ -579,7 +579,6 @@ endif()
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/include)
 link_directories(/usr/local/lib)
-target_link_libraries(rocksdb energy)
 
 if(USE_COROUTINES)
   if(USE_FOLLY OR USE_FOLLY_LITE)
@@ -690,6 +689,7 @@ set(SOURCES
         db/db_filesnapshot.cc
         db/db_impl/compacted_db_impl.cc
         db/db_impl/db_impl.cc
+        db/db_impl/PowerMeter.cc
         db/db_impl/db_impl_write.cc
         db/db_impl/db_impl_compaction_flush.cc
         db/db_impl/db_impl_files.cc
