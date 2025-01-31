@@ -25,6 +25,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #include "db/arena_wrapped_db_iter.h"
 #include "db/attribute_group_iterator_impl.h"
@@ -2566,6 +2568,7 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
 
     ReturnAndCleanupSuperVersion(cfd, sv);
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int ret = pm_load.endMeasurement();
 
     RecordInHistogram(stats_, DB_GET_CORE_JOULES, ret);

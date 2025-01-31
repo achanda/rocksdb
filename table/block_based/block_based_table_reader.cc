@@ -18,6 +18,8 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #include "block_cache.h"
 #include "cache/cache_entry_roles.h"
@@ -2112,6 +2114,7 @@ bool BlockBasedTable::FullFilterKeyMayMatch(
       PERF_COUNTER_BY_LEVEL_ADD(bloom_filter_useful, 1, rep_->level);
     }
   }
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   int ret = pm.endMeasurement();
   RecordInHistogram(rep_->ioptions.stats, DB_GET_FILTER_CORE_JOULES, ret);
   return may_match;
@@ -2323,6 +2326,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
           &lookup_data_block_context, /*prefetch_buffer=*/nullptr,
           /*for_compaction=*/false, /*async_read=*/false, tmp_status,
           /*use_block_cache_for_lookup=*/true);
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
       int ret_read = pm_read.endMeasurement();
       RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_CORE_JOULES, ret_read);
 
@@ -2404,6 +2408,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       }
     }
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int ret = pm.endMeasurement();
     RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, ret);
     if (matched && filter != nullptr) {

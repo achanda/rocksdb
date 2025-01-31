@@ -39,13 +39,16 @@ void PowerMeter::startMeasurement() {
 unsigned long long PowerMeter::endMeasurement() {
     try {
         unsigned long long endEnergy = read_energy_uj();
-        if (endEnergy >= startEnergy) {
+        if (endEnergy > startEnergy) {
             return endEnergy - startEnergy;
-        } else {
+        } else if (endEnergy < startEnergy) {
             const unsigned long long MAX_ENERGY_UJ = 0xFFFFFFFFFFFFFFFF;
             unsigned long long energyDifference = (MAX_ENERGY_UJ - startEnergy) + endEnergy;
             std::cerr << "[WARNING] Counter overflow detected. Calculated energy difference with overflow handling." << std::endl;
             return energyDifference;
+        } else {
+            std::cerr << "[WARNING] ZERO start: " << startEnergy << " " << "end: " << endEnergy << std::endl;
+            return 0;
         }
     } catch (const std::exception &e) {
         std::cerr << "[ERROR] Error ending measurement: " << e.what() << std::endl;
