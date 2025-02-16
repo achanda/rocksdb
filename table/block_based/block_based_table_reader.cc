@@ -2273,7 +2273,10 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     lookup_context.get_from_user_specified_snapshot =
         read_options.snapshot != nullptr;
   }
-  std::cout << "ret1: " << pm1.endMeasurement() << std::endl;
+  auto ret1 = pm1.endMeasurement();
+  if (ret1 != 0) {
+    std::cout << "ret1: " << ret1 << std::endl;
+  }
   TEST_SYNC_POINT("BlockBasedTable::Get:BeforeFilterMatch");
   const bool may_match =
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
@@ -2296,7 +2299,10 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       iiter_unique_ptr.reset(iiter);
     }
 
-    std::cout << "ret2: " << pm2.endMeasurement() << std::endl;
+    auto ret2 = pm2.endMeasurement();
+    if (ret2 != 0) {
+      std::cout << "ret2: " << ret2 << std::endl;
+    }
     PowerMeter pm;
     pm.startMeasurement();
     size_t ts_sz =
@@ -2433,7 +2439,10 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     if (s.ok() && !iiter->status().IsNotFound()) {
       s = iiter->status();
     }
-    std::cout << "ret3: " << pm3.endMeasurement() << std::endl;
+    auto ret3 = pm3.endMeasurement();
+    if (ret3 != 0) {
+      std::cout << "ret3: " << ret3 << std::endl;
+    }
   }
 
   return s;
