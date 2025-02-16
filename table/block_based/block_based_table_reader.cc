@@ -8,6 +8,7 @@
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 #include "table/block_based/block_based_table_reader.h"
 
+#include <iostream>
 #include <algorithm>
 #include <array>
 #include <atomic>
@@ -2245,8 +2246,10 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
                             GetContext* get_context,
                             const SliceTransform* prefix_extractor,
                             bool skip_filters) {
+  PowerMeter pm1, pm2, pm3, pm4, pm5, pm6, pm7, pm8, pm9, pm10;
   // Similar to Bloom filter !may_match
   // If timestamp is beyond the range of the table, skip
+  pm1.startMeasurement();
   if (!TimestampMayMatch(read_options)) {
     return Status::OK();
   }
@@ -2270,11 +2273,13 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     lookup_context.get_from_user_specified_snapshot =
         read_options.snapshot != nullptr;
   }
+  std::cout << "ret1: " << pm1.endMeasurement() << std::endl;
   TEST_SYNC_POINT("BlockBasedTable::Get:BeforeFilterMatch");
   const bool may_match =
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
                             &lookup_context, read_options);
   TEST_SYNC_POINT("BlockBasedTable::Get:AfterFilterMatch");
+  pm2.startMeasurement();
   if (may_match) {
     IndexBlockIter iiter_on_stack;
     // if prefix_extractor found in block differs from options, disable
@@ -2291,6 +2296,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       iiter_unique_ptr.reset(iiter);
     }
 
+    std::cout << "ret2: " << pm2.endMeasurement() << std::endl;
     PowerMeter pm;
     pm.startMeasurement();
     size_t ts_sz =
@@ -2411,6 +2417,8 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     int ret = pm.endMeasurement();
     RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, ret);
+
+    pm3.startMeasurement();
     if (matched && filter != nullptr) {
       if (rep_->whole_key_filtering) {
         RecordTick(rep_->ioptions.stats, BLOOM_FILTER_FULL_TRUE_POSITIVE);
@@ -2425,6 +2433,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     if (s.ok() && !iiter->status().IsNotFound()) {
       s = iiter->status();
     }
+    std::cout << "ret3: " << pm3.endMeasurement() << std::endl;
   }
 
   return s;
