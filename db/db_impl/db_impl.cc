@@ -2296,8 +2296,8 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
   StopWatch sw(immutable_db_options_.clock, stats_, DB_GET);
   PERF_TIMER_GUARD(get_snapshot_time);
 
-  PowerMeter pm_load;
-  pm_load.startMeasurement();
+  //PowerMeter pm_load;
+  //pm_load.startMeasurement();
 
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
       get_impl_options.column_family);
@@ -2568,10 +2568,10 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
 
     ReturnAndCleanupSuperVersion(cfd, sv);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    int ret = pm_load.endMeasurement();
+    //std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    //int ret = pm_load.endMeasurement();
 
-    RecordInHistogram(stats_, DB_GET_CORE_JOULES, ret);
+    // RecordInHistogram(stats_, DB_GET_CORE_JOULES, ret);
     RecordInHistogram(stats_, BYTES_PER_READ, size);
   }
   return s;
