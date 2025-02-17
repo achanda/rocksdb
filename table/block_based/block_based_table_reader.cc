@@ -2274,6 +2274,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     lookup_context.get_from_user_specified_snapshot =
         read_options.snapshot != nullptr;
   }
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   auto ret1 = pm1.endMeasurement();
   if (ret1 != 0) {
     std::cout << "ret1: " << ret1 << std::endl;
@@ -2302,6 +2303,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       iiter_unique_ptr.reset(iiter);
     }
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     auto ret2 = pm2.endMeasurement();
     if (ret2 != 0) {
       std::cout << "ret2: " << ret2 << std::endl;
@@ -2445,6 +2447,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     if (s.ok() && !iiter->status().IsNotFound()) {
       s = iiter->status();
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     auto ret3 = pm3.endMeasurement();
     if (ret3 != 0) {
       std::cout << "ret3: " << ret3 << std::endl;
