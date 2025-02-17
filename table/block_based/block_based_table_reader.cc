@@ -2249,7 +2249,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
   PowerMeter pm1, pm2, pm3, pm4, pm5, pm6, pm7, pm8, pm9, pm10;
   // Similar to Bloom filter !may_match
   // If timestamp is beyond the range of the table, skip
-  #pragma region[pm1]
   pm1.startMeasurement();
   if (!TimestampMayMatch(read_options)) {
     return Status::OK();
@@ -2279,13 +2278,11 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
   if (ret1 != 0) {
     std::cout << "ret1: " << ret1 << std::endl;
   }
-  #pragma endregion pm1
   TEST_SYNC_POINT("BlockBasedTable::Get:BeforeFilterMatch");
   const bool may_match =
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
                             &lookup_context, read_options);
   TEST_SYNC_POINT("BlockBasedTable::Get:AfterFilterMatch");
-  #pragma region[pm2]
   pm2.startMeasurement();
   if (may_match) {
     IndexBlockIter iiter_on_stack;
@@ -2308,7 +2305,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     if (ret2 != 0) {
       std::cout << "ret2: " << ret2 << std::endl;
     }
-    #pragma endregion pm2
     PowerMeter pm;
 
     pm.startMeasurement();
@@ -2431,7 +2427,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     int ret = pm.endMeasurement();
     RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, ret);
 
-    #pragma region[pm3]
     pm3.startMeasurement();
     if (matched && filter != nullptr) {
       if (rep_->whole_key_filtering) {
@@ -2453,7 +2448,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       std::cout << "ret3: " << ret3 << std::endl;
     }
   }
-  #pragma endregion pm3
 
   return s;
 }
