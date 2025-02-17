@@ -2249,7 +2249,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
   PowerMeter pm1, pm2, pm3, pm4, pm5, pm6, pm7, pm8, pm9, pm10;
   // Similar to Bloom filter !may_match
   // If timestamp is beyond the range of the table, skip
-  #pragma region pm1
+  #pragma region[pm1]
   pm1.startMeasurement();
   if (!TimestampMayMatch(read_options)) {
     return Status::OK();
@@ -2285,7 +2285,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
                             &lookup_context, read_options);
   TEST_SYNC_POINT("BlockBasedTable::Get:AfterFilterMatch");
-  #pragma region pm2
+  #pragma region[pm2]
   pm2.startMeasurement();
   if (may_match) {
     IndexBlockIter iiter_on_stack;
@@ -2431,7 +2431,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     int ret = pm.endMeasurement();
     RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, ret);
 
-    #pragma region pm3
+    #pragma region[pm3]
     pm3.startMeasurement();
     if (matched && filter != nullptr) {
       if (rep_->whole_key_filtering) {
