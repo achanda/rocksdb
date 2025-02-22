@@ -2314,6 +2314,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
         // lowest key in current block.
         break;
       }
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
       auto ret_index = pm_index.endMeasurement();
       RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, ret_index);
 
@@ -2327,8 +2328,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       uint64_t referenced_data_size = 0;
       Status tmp_status;
 
-      PowerMeter pm_read;
-      pm_read.startMeasurement();
       NewDataBlockIterator<DataBlockIter>(
           read_options, v.handle, &biter, BlockType::kData, get_context,
           &lookup_data_block_context, /*prefetch_buffer=*/nullptr,
