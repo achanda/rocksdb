@@ -2246,7 +2246,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
                             GetContext* get_context,
                             const SliceTransform* prefix_extractor,
                             bool skip_filters) {
-  PowerMeter pm1, pm2, pm3, pm4, pm5, pm6, pm7, pm8, pm9, pm10;
+  PowerMeter pm1, pm2, pm3, pm_index, pm_block;
   // Similar to Bloom filter !may_match
   // If timestamp is beyond the range of the table, skip
   pm1.startMeasurement();
@@ -2281,7 +2281,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
                             &lookup_context, read_options);
   TEST_SYNC_POINT("BlockBasedTable::Get:AfterFilterMatch");
-  pm2.startMeasurement();
+  pm_index.startMeasurement();
   if (may_match) {
     IndexBlockIter iiter_on_stack;
     // if prefix_extractor found in block differs from options, disable
@@ -2298,12 +2298,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       iiter_unique_ptr.reset(iiter);
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    auto ret2 = pm2.endMeasurement();
-    RecordInHistogram(rep_->ioptions.stats, DB_GET_RET2_CORE_JOULES, ret2);
-    PowerMeter pm;
-
-    pm.startMeasurement();
     size_t ts_sz =
         rep_->internal_comparator.user_comparator()->timestamp_size();
     bool matched = false;  // if such user key matched a key in SST
@@ -2320,7 +2314,10 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
         // lowest key in current block.
         break;
       }
+      auto ret_index = pm_index.endMeasurement();
+      RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, ret_index);
 
+      pm_block.startMeasurement();
       BlockCacheLookupContext lookup_data_block_context{
           TableReaderCaller::kUserGet, tracing_get_id,
           /*get_from_user_specified_snapshot=*/read_options.snapshot !=
@@ -2338,9 +2335,10 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
           /*for_compaction=*/false, /*async_read=*/false, tmp_status,
           /*use_block_cache_for_lookup=*/true);
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      int ret_read = pm_read.endMeasurement();
+      auto ret_read = pm_block.endMeasurement();
       RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_CORE_JOULES, ret_read);
 
+      pm2.startMeasurement();
       if (no_io && biter.status().IsIncomplete()) {
         // couldn't get block from block_cache
         // Update Saver.state to Found because we are only looking for
@@ -2419,11 +2417,6 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       }
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    int ret = pm.endMeasurement();
-    RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, ret);
-
-    pm3.startMeasurement();
     if (matched && filter != nullptr) {
       if (rep_->whole_key_filtering) {
         RecordTick(rep_->ioptions.stats, BLOOM_FILTER_FULL_TRUE_POSITIVE);
@@ -2439,8 +2432,8 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       s = iiter->status();
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    auto ret3 = pm3.endMeasurement();
-    RecordInHistogram(rep_->ioptions.stats, DB_GET_RET3_CORE_JOULES, ret3);
+    auto ret2 = pm2.endMeasurement();
+    RecordInHistogram(rep_->ioptions.stats, DB_GET_RET2_CORE_JOULES, ret2);
   }
 
   return s;
