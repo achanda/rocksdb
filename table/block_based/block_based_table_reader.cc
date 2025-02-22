@@ -2275,9 +2275,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
   }
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
   auto ret1 = pm1.endMeasurement();
-  if (ret1 != 0) {
-    std::cout << "ret1: " << ret1 << std::endl;
-  }
+  RecordInHistogram(rep_->ioptions.stats, DB_GET_RET1_CORE_JOULES, ret1);
   TEST_SYNC_POINT("BlockBasedTable::Get:BeforeFilterMatch");
   const bool may_match =
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
@@ -2302,9 +2300,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     auto ret2 = pm2.endMeasurement();
-    if (ret2 != 0) {
-      std::cout << "ret2: " << ret2 << std::endl;
-    }
+    RecordInHistogram(rep_->ioptions.stats, DB_GET_RET2_CORE_JOULES, ret2);
     PowerMeter pm;
 
     pm.startMeasurement();
@@ -2444,9 +2440,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     auto ret3 = pm3.endMeasurement();
-    if (ret3 != 0) {
-      std::cout << "ret3: " << ret3 << std::endl;
-    }
+    RecordInHistogram(rep_->ioptions.stats, DB_GET_RET3_CORE_JOULES, ret3);
   }
 
   return s;
