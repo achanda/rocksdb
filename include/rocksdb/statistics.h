@@ -662,16 +662,33 @@ enum Histograms : uint32_t {
   // system's prefetch) from the end of SST table during block based table open
   TABLE_OPEN_PREFETCH_TAIL_READ_BYTES,
 
-
+  // Core energy spent on DB::Get()
   DB_GET_CORE_JOULES,
-  DB_GET_RET1_CORE_JOULES,
-  DB_GET_RET2_CORE_JOULES,
-  DB_GET_RET3_CORE_JOULES,
+  // Core energy spent on filter block access during DB::Get()
   DB_GET_FILTER_CORE_JOULES,
+  // Core energy spent on index block access during DB::Get()
   DB_GET_INDEX_CORE_JOULES,
+  // Core energy spent on disk access during DB::Get()
   DB_GET_DISK_CORE_JOULES,
-  DB_GET_MEMORY_JOULES,
+  // Package energy spent on DB::Get()
+  DB_GET_PACKAGE_JOULES,
+  // Package energy spent on filter block access during DB::Get()
+  DB_GET_FILTER_PACKAGE_JOULES,
+  // Package energy spent on index block access during DB::Get()
+  DB_GET_INDEX_PACKAGE_JOULES,
+  // Package energy spent on disk access during DB::Get()
+  DB_GET_DISK_PACKAGE_JOULES,
+  // DRAM energy spent on DB::Get()
+  DB_GET_DRAM_JOULES,
+  // DRAM energy spent on filter block access during DB::Get()
+  DB_GET_FILTER_DRAM_JOULES,
+  // DRAM energy spent on index block access during DB::Get()
+  DB_GET_INDEX_DRAM_JOULES,
+  // DRAM energy spent on disk access during DB::Get()
+  DB_GET_DISK_DRAM_JOULES,
+  // Core energy spent on DB::Put()
   DB_PUT_CORE_JOULES,
+  // Memory energy spent on DB::Put()
   DB_PUT_MEMORY_JOULES,
 
   HISTOGRAM_ENUM_MAX
