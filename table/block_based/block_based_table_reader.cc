@@ -2116,8 +2116,10 @@ bool BlockBasedTable::FullFilterKeyMayMatch(
     }
   }
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  int ret = pm.endMeasurement();
-  RecordInHistogram(rep_->ioptions.stats, DB_GET_FILTER_CORE_JOULES, ret);
+  auto [filter_package, filter_core, filter_dram] = pm.endMeasurement();
+  RecordInHistogram(rep_->ioptions.stats, DB_GET_FILTER_CORE_JOULES, filter_core);
+  RecordInHistogram(rep_->ioptions.stats, DB_GET_FILTER_DRAM_JOULES, filter_dram);
+  RecordInHistogram(rep_->ioptions.stats, DB_GET_FILTER_PACKAGE_JOULES, filter_package);
   return may_match;
 }
 
@@ -2274,8 +2276,8 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
         read_options.snapshot != nullptr;
   }
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  auto ret1 = pm1.endMeasurement();
-  RecordInHistogram(rep_->ioptions.stats, DB_GET_RET1_CORE_JOULES, ret1);
+  auto [ret1_cpu, ret1_gpu, ret1_core] = pm1.endMeasurement();
+  RecordInHistogram(rep_->ioptions.stats, DB_GET_RET1_CORE_JOULES, ret1_core);
   TEST_SYNC_POINT("BlockBasedTable::Get:BeforeFilterMatch");
   const bool may_match =
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
@@ -2315,8 +2317,10 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
         break;
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      auto ret_index = pm_index.endMeasurement();
-      RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, ret_index);
+      auto [index_package, index_core, index_dram] = pm_index.endMeasurement();
+      RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_CORE_JOULES, index_core);
+      RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_DRAM_JOULES, index_dram);
+      RecordInHistogram(rep_->ioptions.stats, DB_GET_INDEX_PACKAGE_JOULES, index_package);
 
       pm_block.startMeasurement();
       BlockCacheLookupContext lookup_data_block_context{
@@ -2334,8 +2338,10 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
           /*for_compaction=*/false, /*async_read=*/false, tmp_status,
           /*use_block_cache_for_lookup=*/true);
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      auto ret_read = pm_block.endMeasurement();
-      RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_CORE_JOULES, ret_read);
+      auto [block_package, block_core, block_dram] = pm_block.endMeasurement();
+      RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_CORE_JOULES, block_core);
+      RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_DRAM_JOULES, block_dram);
+      RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_PACKAGE_JOULES, block_package);
 
       pm2.startMeasurement();
       if (no_io && biter.status().IsIncomplete()) {
@@ -2431,8 +2437,8 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       s = iiter->status();
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    auto ret2 = pm2.endMeasurement();
-    RecordInHistogram(rep_->ioptions.stats, DB_GET_RET2_CORE_JOULES, ret2);
+    auto [ret2_cpu, ret2_gpu, ret2_core] = pm2.endMeasurement();
+    RecordInHistogram(rep_->ioptions.stats, DB_GET_RET2_CORE_JOULES, ret2_core);
   }
 
   return s;

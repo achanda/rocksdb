@@ -2569,9 +2569,11 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
     ReturnAndCleanupSuperVersion(cfd, sv);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    int ret = pm_get.endMeasurement();
+    auto [package, dram, core] = pm_get.endMeasurement();
 
-    RecordInHistogram(stats_, DB_GET_CORE_JOULES, ret);
+    RecordInHistogram(stats_, DB_GET_CORE_JOULES, core);
+    RecordInHistogram(stats_, DB_GET_DRAM_JOULES, dram);
+    RecordInHistogram(stats_, DB_GET_PACKAGE_JOULES, package);
     RecordInHistogram(stats_, BYTES_PER_READ, size);
   }
   return s;
