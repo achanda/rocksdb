@@ -16,9 +16,19 @@ std::tuple<unsigned long long, unsigned long long, unsigned long long> read_ener
     std::ifstream core_file(core_file_path);
     std::ifstream dram_file(dram_file_path);
 
-    if (!package_file.is_open() || !core_file.is_open() || !dram_file.is_open()) {
-        std::cerr << "[ERROR] Failed to open energy file" << std::endl;
-        throw std::runtime_error("Failed to open energy file.");
+    if (!package_file.is_open()) {
+        std::cerr << "[ERROR] Failed to open package energy file: " << package_file_path << std::endl;
+        throw std::runtime_error("Failed to open package energy file.");
+    }
+    
+    if (!core_file.is_open()) {
+        std::cerr << "[ERROR] Failed to open core energy file: " << core_file_path << std::endl;
+        throw std::runtime_error("Failed to open core energy file.");
+    }
+    
+    if (!dram_file.is_open()) {
+        std::cerr << "[ERROR] Failed to open dram energy file: " << dram_file_path << std::endl;
+        throw std::runtime_error("Failed to open dram energy file.");
     }
 
     unsigned long long package_energy_value;
@@ -26,26 +36,22 @@ std::tuple<unsigned long long, unsigned long long, unsigned long long> read_ener
     unsigned long long dram_energy_value;
 
     package_file >> package_energy_value;
-    core_file >> core_energy_value;
-    dram_file >> dram_energy_value;
 
-    if (package_file.fail() || core_file.fail() || dram_file.fail()) {
-        std::cerr << "[ERROR] Failed to read energy value from file(s): ";
-        
-        const std::vector<std::pair<std::ifstream&, const std::string&>> file_pairs = {
-            {package_file, package_file_path},
-            {core_file, core_file_path},
-            {dram_file, dram_file_path}
-        };
-        
-        for (const auto& [file, path] : file_pairs) {
-            if (file.fail()) {
-                std::cerr << path << " ";
-            }
-        }
-        
-        std::cerr << std::endl;
-        throw std::runtime_error("Failed to read energy value.");
+    if (package_file.fail()) {
+        std::cerr << "[ERROR] Failed to read energy value from package file: " << package_file_path << std::endl;
+        throw std::runtime_error("Failed to read package energy value.");
+    }
+    
+    core_file >> core_energy_value;
+    if (core_file.fail()) {
+        std::cerr << "[ERROR] Failed to read energy value from core file: " << core_file_path << std::endl;
+        throw std::runtime_error("Failed to read core energy value.");
+    }
+    
+    dram_file >> dram_energy_value;
+    if (dram_file.fail()) {
+        std::cerr << "[ERROR] Failed to read energy value from dram file: " << dram_file_path << std::endl;
+        throw std::runtime_error("Failed to read dram energy value.");
     }
 
     package_file.close();
