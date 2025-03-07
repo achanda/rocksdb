@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <vector>
 
 std::tuple<unsigned long long, unsigned long long, unsigned long long> read_energy_uj() {
     const std::string package_file_path = "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/energy_uj";
@@ -29,7 +30,21 @@ std::tuple<unsigned long long, unsigned long long, unsigned long long> read_ener
     dram_file >> dram_energy_value;
 
     if (package_file.fail() || core_file.fail() || dram_file.fail()) {
-        std::cerr << "[ERROR] Failed to read energy value from file " << std::endl;
+        std::cerr << "[ERROR] Failed to read energy value from file(s): ";
+        
+        const std::vector<std::pair<std::ifstream&, const std::string&>> file_pairs = {
+            {package_file, package_file_path},
+            {core_file, core_file_path},
+            {dram_file, dram_file_path}
+        };
+        
+        for (const auto& [file, path] : file_pairs) {
+            if (file.fail()) {
+                std::cerr << path << " ";
+            }
+        }
+        
+        std::cerr << std::endl;
         throw std::runtime_error("Failed to read energy value.");
     }
 
