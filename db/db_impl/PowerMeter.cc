@@ -8,9 +8,9 @@
 #include <vector>
 
 std::tuple<unsigned long long, unsigned long long, unsigned long long> read_energy_uj() {
-    const std::string package_file_path = "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0/energy_uj";
-    const std::string core_file_path = "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0:0/energy_uj";
-    const std::string dram_file_path = "/sys/devices/virtual/powercap/intel-rapl/intel-rapl:0:1/energy_uj";
+    const std::string package_file_path = "/sys/class/powercap/intel-rapl:0/energy_uj";
+    const std::string core_file_path = "/sys/class/powercap/intel-rapl:0:0/energy_uj";
+    const std::string dram_file_path = "/sys/class/powercap/intel-rapl:0:1/energy_uj";
 
     std::ifstream package_file(package_file_path);
     std::ifstream core_file(core_file_path);
