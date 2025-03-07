@@ -2248,10 +2248,11 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
                             GetContext* get_context,
                             const SliceTransform* prefix_extractor,
                             bool skip_filters) {
-  PowerMeter pm1, pm2, pm3, pm_index, pm_block;
+  //PowerMeter pm1, pm2, pm3, pm_index, pm_block;
+  PowerMeter pm_index, pm_block;
   // Similar to Bloom filter !may_match
   // If timestamp is beyond the range of the table, skip
-  pm1.startMeasurement();
+  //pm1.startMeasurement();
   if (!TimestampMayMatch(read_options)) {
     return Status::OK();
   }
@@ -2275,9 +2276,9 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     lookup_context.get_from_user_specified_snapshot =
         read_options.snapshot != nullptr;
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  auto [ret1_cpu, ret1_gpu, ret1_core] = pm1.endMeasurement();
-  RecordInHistogram(rep_->ioptions.stats, DB_GET_RET1_CORE_JOULES, ret1_core);
+  //std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  //auto [ret1_cpu, ret1_gpu, ret1_core] = pm1.endMeasurement();
+  //RecordInHistogram(rep_->ioptions.stats, DB_GET_RET1_CORE_JOULES, ret1_core);
   TEST_SYNC_POINT("BlockBasedTable::Get:BeforeFilterMatch");
   const bool may_match =
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
@@ -2343,7 +2344,7 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
       RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_DRAM_JOULES, block_dram);
       RecordInHistogram(rep_->ioptions.stats, DB_GET_DISK_PACKAGE_JOULES, block_package);
 
-      pm2.startMeasurement();
+      //pm2.startMeasurement();
       if (no_io && biter.status().IsIncomplete()) {
         // couldn't get block from block_cache
         // Update Saver.state to Found because we are only looking for
@@ -2436,9 +2437,9 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
     if (s.ok() && !iiter->status().IsNotFound()) {
       s = iiter->status();
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    auto [ret2_cpu, ret2_gpu, ret2_core] = pm2.endMeasurement();
-    RecordInHistogram(rep_->ioptions.stats, DB_GET_RET2_CORE_JOULES, ret2_core);
+    //std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    //auto [ret2_cpu, ret2_gpu, ret2_core] = pm2.endMeasurement();
+    //RecordInHistogram(rep_->ioptions.stats, DB_GET_RET2_CORE_JOULES, ret2_core);
   }
 
   return s;
